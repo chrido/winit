@@ -243,6 +243,8 @@ impl<T: 'static> EventLoop<T> {
                     );
                 },
                 MainEvent::ConfigChanged { .. } => {
+                    resized = true;
+                    pending_redraw = true;
                     let monitor = MonitorHandle::new(self.android_app.clone());
                     let old_scale_factor = monitor.scale_factor();
                     let scale_factor = monitor.scale_factor();
