@@ -145,6 +145,12 @@ pub struct EventLoop<T: 'static> {
     combining_accent: Option<char>,
 }
 
+impl<T> Drop for EventLoop<T> {
+    fn drop(&mut self) {
+        crate::event_loop::EventLoopBuilder::<()>::allow_event_loop_recreation();
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct PlatformSpecificEventLoopAttributes {
     pub(crate) android_app: Option<AndroidApp>,
@@ -289,9 +295,8 @@ impl<T: 'static> EventLoop<T> {
                     warn!("TODO: forward onStop notification to application");
                 },
                 MainEvent::Destroy => {
-                    // XXX: maybe exit mainloop to drop things before being
-                    // killed by the OS?
-                    warn!("TODO: forward onDestroy notification to application");
+                    debug!("App Destroyed - exiting event loop");
+                    self.window_target.exit();
                 },
                 MainEvent::InsetsChanged { .. } => {
                     // XXX: how to forward this state to applications?
